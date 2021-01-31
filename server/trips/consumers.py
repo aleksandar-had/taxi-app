@@ -17,6 +17,10 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
     def _get_user_group(self, user):
         return user.groups.first().name
 
+    @database_sync_to_async
+    def _get_trip_data(self, trip):
+        return NestedTripSerializer(trip).data
+
     async def connect(self):
         user = self.scope["user"]
         if user.is_anonymous:
@@ -59,9 +63,20 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
     async def create_trip(self, message):
         data = message.get("data")
         trip = await self._create_trip(data)
+        trip_data = await self._get_trip_data(trip)
+
+        # Send request to drivers
+        await self.channel_layer.group_send(
+            group="drivers",
+            message={
+                "type": "echo.message",
+                "data": trip_data
+            }
+        )
+
         await self.send_json(
             {
                 "type": "echo.message",
-                "data": NestedTripSerializer(trip).data,
+                "data": trip_data
             }
         )
