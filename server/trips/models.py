@@ -9,7 +9,10 @@ from django.shortcuts import reverse
 # behaves identically to the default user model, but you’ll be able to
 # customize it in the future if the need arises.
 class User(AbstractUser):
-    pass
+    @property
+    def group(self):
+        groups = self.groups.all()
+        return groups[0].name if groups else None
 
 
 class Trip(models.Model):
@@ -29,7 +32,8 @@ class Trip(models.Model):
     updated = models.DateTimeField(auto_now=True)
     pick_up_address = models.CharField(max_length=255)
     drop_off_address = models.CharField(max_length=255)
-    status = models.CharField(max_length=20, choices=STATUSES, default=REQUESTED)
+    status = models.CharField(
+        max_length=20, choices=STATUSES, default=REQUESTED)
 
     def __str__(self):
         return f"{self.id}"
