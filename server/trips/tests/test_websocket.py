@@ -101,3 +101,35 @@ class TestWebSocket:
         response = await communicator.receive_json_from()
         assert response == message
         await communicator.disconnect()
+
+    async def test_request_trip(self, settings):
+        settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+        user, access = await create_user(
+            "user@example.com",
+            "pAssw0rd!",
+            "rider"
+        )
+        communicator = WebsocketCommunicator(
+            application=application,
+            path=f"/taxi/?token={access}"
+        )
+        connected, _ = await communicator.connect()
+        await communicator.send_json_to(
+            {
+                "type": "create.trip",
+                "data": {
+                    "pick_up_address": "Stephansplatz 1",
+                    "drop_off_address": "Georgi S. Rakovski 108",
+                    "rider": user.id
+                }
+            }
+        )
+        response = await communicator.receive_json_from()
+        response_data = response.get("data")
+        assert response_data["id"] is not None
+        assert response_data["pick_up_address"] == "Stephansplatz 1"
+        assert response_data["drop_off_address"] == "Georgi S. Rakovski 108"
+        assert response_data["rider"]["username"] == user.username
+        assert response_data["status"] == "REQUESTED"
+        assert response_data["driver"] is None
+        await communicator.disconnect()

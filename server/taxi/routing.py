@@ -7,6 +7,7 @@ from taxi.middleware import TokenAuthMiddlewareStack
 
 from trips.consumers import TaxiConsumer
 
+
 application = ProtocolTypeRouter({
     'http': get_asgi_application(),
     'websocket': TokenAuthMiddlewareStack(
