@@ -41,7 +41,8 @@ class AuthenticationTest(APITestCase):
     def test_user_can_log_in(self):
         user = create_user()
         response = self.client.post(
-            reverse("log_in"), data={"username": user.username, "password": PASSWORD,}
+            reverse("log_in"), data={"username": user.username,
+                                     "password": PASSWORD, }
         )
 
         access = response.data["access"]
@@ -62,7 +63,8 @@ class HttpTripTest(APITestCase):
     def setUp(self):
         user = create_user()
         response = self.client.post(
-            reverse("log_in"), data={"username": user.username, "password": PASSWORD,}
+            reverse("log_in"), data={"username": user.username,
+                                     "password": PASSWORD, }
         )
         self.access = response.data["access"]
 
@@ -72,7 +74,8 @@ class HttpTripTest(APITestCase):
             Trip.objects.create(pick_up_address="B", drop_off_address="C"),
         ]
         response = self.client.get(
-            reverse("trip:trip_list"), HTTP_AUTHORIZATION=f"Bearer {self.access}"
+            reverse("trip:trip_list"),
+            HTTP_AUTHORIZATION=f"Bearer {self.access}"
         )
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         exp_trip_ids = [str(trip.id) for trip in trips]
