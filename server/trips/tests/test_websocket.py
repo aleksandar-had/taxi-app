@@ -186,7 +186,7 @@ class TestWebSocket:
         assert response_data["rider"]["username"] == user.username
         assert response_data["driver"] is None
         await communicator.disconnect()
-        
+    
     async def test_create_trip_group(self, settings):
         settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
         user, access = await create_user(
@@ -251,4 +251,51 @@ class TestWebSocket:
         assert response == message
         
         await communicator.disconnect()
+
+    async def test_driver_can_update_trip(self, settings):
+        settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
         
+        rider, _ = await create_user(
+            "rider@example.com",
+            "pAssw0rd",
+            "rider"
+        )
+        trip = await create_trip(rider=rider)
+        trip_id = f"{trip.id}"
+        
+        channel_layer = get_channel_layer()
+        await channel_layer.group_add(
+            group=trip_id,
+            channel="test_channel"
+        )
+        
+        driver, access = await create_user(
+            "driver@example.com",
+            "pAssw0rd",
+            "driver"
+        )
+        communicator = WebsocketCommunicator(
+            application=application,
+            path=f"/taxi/?token={access}"
+        )
+        connected, _ = await communicator.connect()
+        message = {
+            "type": "update.trip",
+            "data": {
+                "id": trip_id,
+                "pick_up_address": trip.pick_up_address,
+                "drop_off_address": trip.drop_off_address,
+                "status": Trip.IN_PROGRESS,
+                "driver": driver.id,
+            },
+        }
+        await communicator.send_json_to(message)
+
+        response = await channel_layer.receive("test_channel")
+        response_data = response.get("data")
+        assert response_data["id"] == trip_id
+        assert response_data["driver"]["username"] == driver.username
+        assert response_data["rider"]["username"] == rider.username
+
+        await communicator.disconnect()
+    
