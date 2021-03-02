@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter } from "react-router-dom";
 import "./index.css";
+import "bootswatch/dist/lumen/bootstrap.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
