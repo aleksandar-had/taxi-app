@@ -15,8 +15,8 @@ function App() {
         render={() => (
           <div>
             <h1>Taxi</h1>
-            <Link to="/sign-up">Sign Up</Link>
-            <Link to="/log-in">Log In</Link>
+            <Link to="/sign-up">Sign up</Link>
+            <Link to="/log-in">Log in</Link>
           </div>
         )}
       />
