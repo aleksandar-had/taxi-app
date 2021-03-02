@@ -4,7 +4,7 @@ from rest_framework import generics, permissions, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import Trip
-from .serializers import UserSerializer, LogInSerializer, TripSerializer
+from .serializers import UserSerializer, LogInSerializer, TripSerializer, NestedTripSerializer
 
 
 # Extend Django REST Framework’s CreateAPIView and leverage on
@@ -19,14 +19,15 @@ class LogInView(TokenObtainPairView):
 
 
 class TripView(viewsets.ReadOnlyModelViewSet):
-    # tells the view to get the trip record by its id value
+    # Tells the view to get the trip record by its id value
     lookup_field = "id"
-    # tells the view what named parameter to use to extract
+    # Tells the view what named parameter to use to extract
     # the id value from the URL
     lookup_url_kwarg = "trip_id"
 
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = TripSerializer
+    # Use NestedTripSerializer to include the full layer of user (rider/driver) info
+    serializer_class = NestedTripSerializer
     
     def get_queryset(self):
         user = self.request.user

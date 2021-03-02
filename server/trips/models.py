@@ -10,6 +10,8 @@ from django.conf import settings
 # behaves identically to the default user model, but you’ll be able to
 # customize it in the future if the need arises.
 class User(AbstractUser):
+    photo = models.ImageField(upload_to="photos", null=True, blank=True)
+    
     @property
     def group(self):
         groups = self.groups.all()
