@@ -5,7 +5,10 @@ import { Breadcrumb, Button, Card, Col, Form, Row } from "react-bootstrap";
 
 function LogIn(props) {
   const [isSubmitted, setSubmitted] = useState(false);
-  const onSubmit = (values, actions) => setSubmitted(true);
+  const onSubmit = (values, actions) => {
+    props.logIn(values.username, values.password);
+    setSubmitted(true);
+  };
 
   if (isSubmitted) {
     return <Redirect to="/" />;
