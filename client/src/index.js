@@ -1,10 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter } from "react-router-dom";
+import axios from "axios";
 import "./index.css";
 import "bootswatch/dist/lumen/bootstrap.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+
+axios.defaults.xsrfCookieName = "csrftoken";
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 // Use HashRouter throughout the application
 ReactDOM.render(
